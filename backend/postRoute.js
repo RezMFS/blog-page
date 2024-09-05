@@ -1,70 +1,61 @@
 const express = require("express");
 const database = require("./connectDb");
 const ObjectId = require("mongodb").ObjectId;
+const jwt = require("jsonwebtoken");
+require("dotenv").config({ path: "./config.env" });
+
 let postRoute = express.Router();
 
-// Read  ( Retrieve All )
-postRoute.route("/posts").get(async (request, response) => {
-  // Memanggil fungsi getDb dari file connectDb.js untuk mendapatkan koneksi ke database
+// Read (Retrieve All)
+postRoute.route("/posts").get(verifyToken, async (request, response) => {
   let db = database.getDb();
 
-  // Mengambil semua data dari koleksi "posts" dan menyimpannya dalam variabel data
   let data = await db.collection("posts").find({}).toArray();
 
-  // Jika data tersebut tidak kosong, maka kita akan mengirimkan respons dengan status 200 (sukses) dan data tersebut dalam format JSON
   if (data.length > 0) {
     response.status(200).json(data);
   } else {
-    // Jika data kosong, maka kita akan melempar error dengan pesan "WHERE IS THE DATAAAAAAA? o.O"
     throw new Error("Data was not found");
   }
 });
 
-// Read  ( Retrieve Single )
-postRoute.route("/posts/:id").get(async (request, response) => {
-  // Memanggil fungsi getDb dari file connectDb.js untuk mendapatkan koneksi ke database
+// Read (Retrieve Single)
+postRoute.route("/posts/:id").get(verifyToken, async (request, response) => {
   let db = database.getDb();
 
-  // Mengambil satu data dari koleksi "posts" dan menyimpannya dalam variabel data
   let data = await db
     .collection("posts")
     .findOne({ _id: new ObjectId(request.params.id) });
 
-  // Menggunakan fungsi Object.keys untuk mendapatkan array dari kunci (key) dari objek data. Kemudian, kita memeriksa apakah panjang dari array tersebut lebih dari 0. Jika ya, maka data tersebut sudah berisi data dan kita akan mengirimkan respons dengan status 200 (sukses) dan data tersebut dalam format JSON. Jika tidak, maka data tidak ditemukan dan kita akan melempar error dengan pesan "Data tidak ditemukan".
-  if (Object.keys(data).length > 0) {
+  if (data && Object.keys(data).length > 0) {
     response.status(200).json(data);
   } else {
     throw new Error("Data was not found");
   }
 });
 
-// Create  ( Create One )
-postRoute.route("/posts").post(async (request, response) => {
-  // Memanggil fungsi getDb dari file connectDb.js untuk mendapatkan koneksi ke database
+// Create (Create One)
+postRoute.route("/posts").post(verifyToken, async (request, response) => {
   let db = database.getDb();
 
-  // Membuat objek yang akan diinputkan ke dalam database
   let mongoObject = {
-    title: request.body.title, // Judul postingan
-    description: request.body.description, // Deskripsi postingan
-    content: request.body.content, // Isi postingan
-    author: request.body.author, // Nama penulis postingan
-    dateCreated: request.body.dateCreated, // Tanggal postingan dibuat
+    title: request.body.title, // Post title
+    description: request.body.description, // Post description
+    content: request.body.content, // Post content
+    author: request.body.user._id, // Author of the post
+    dateCreated: request.body.dateCreated, // Date the post was created
   };
 
-  // Menambahkan data ke dalam database
   let data = await db.collection("posts").insertOne(mongoObject);
 
-  // Mengirimkan respons dengan status 200 (sukses) dan data yang telah diinputkan
   response.status(200).json(data);
 });
 
 // Update
-postRoute.route("/posts/:id").put(async (request, response) => {
+postRoute.route("/posts/:id").put(verifyToken, async (request, response) => {
   let db = database.getDb();
   let mongoObject = {
     $set: {
-      // This is a MongoDB operator to update a document in the database. The $set operator replaces the value of a field with the specified value. In this case, it will update the fields of the document with the new values provided in the request body.
       title: request.body.title,
       description: request.body.description,
       content: request.body.content,
@@ -80,7 +71,7 @@ postRoute.route("/posts/:id").put(async (request, response) => {
 });
 
 // Delete
-postRoute.route("/posts/:id").delete(async (request, response) => {
+postRoute.route("/posts/:id").delete(verifyToken, async (request, response) => {
   let db = database.getDb();
   let data = await db
     .collection("posts")
@@ -89,4 +80,23 @@ postRoute.route("/posts/:id").delete(async (request, response) => {
   response.status(200).json(data);
 });
 
+function verifyToken(request, response, next) {
+  const authHeaders = request.headers["authorization"];
+  const token = authHeaders && authHeaders.split(" ")[1];
+
+  if (!token) {
+    return response
+      .status(401)
+      .json({ message: "Authentication token is missing" });
+  }
+
+  jwt.verify(token, process.env.SECRETKEY, (error, user) => {
+    if (error) {
+      return response.status(403).json({ message: "Invalid Token" });
+    }
+
+    request.body.user = user;
+    next();
+  });
+}
 module.exports = postRoute;

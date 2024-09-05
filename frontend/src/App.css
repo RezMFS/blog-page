@@ -40,3 +40,36 @@
 .read-the-docs {
   color: #888;
 }
+
+.navbar {
+  top: 0;
+  width: 100%;
+  left: 25%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.navItem {
+  padding: 4px;
+  margin: 4px;
+  color: white;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 4px;
+}
+
+.posts {
+  display: flex;
+  flex-direction: column;
+}
+
+.post {
+  margin: 4px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.post:hover {
+  cursor: pointer;
+  background-color: lightgrey;
+}

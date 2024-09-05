@@ -2,6 +2,7 @@ const connect = require("./connectDb.js");
 const express = require("express");
 const cors = require("cors");
 const posts = require("./postRoute.js");
+const users = require("./userRoute.js");
 
 const app = express();
 const PORT = 3000;
@@ -18,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(posts);
+app.use(users);
 // The app.listen() function starts the Express.js server and begins listening
 // for incoming requests. It takes an optional argument, the port number, which
 // defaults to 3000 if not provided. The callback function is called after the
