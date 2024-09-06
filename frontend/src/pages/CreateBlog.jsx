@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { createPost } from "../api";
+import { Input } from "@/component/ui/input";
+import { Button } from "@/component/ui/button";
+import { Label } from "@/component/ui/label";
 
 export function CreateBlog() {
   const [title, setTitle] = useState("");
@@ -7,7 +10,6 @@ export function CreateBlog() {
   const [content, setContent] = useState("");
 
   async function handleSubmit() {
-    // Function for submitting the form into the database.
     let submitObject = {
       title: title,
       description: description,
@@ -21,28 +23,30 @@ export function CreateBlog() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <label>Blog Post Title :</label>
-      <input
+      <Label className="flex left-0 p-2">Blog Post Title :</Label>
+      <Input
         onChange={(e) => setTitle(e.target.value)}
         maxLength={50}
         required
         name="title"
-      ></input>
-      <label>Blog Post Description :</label>
-      <input
+      ></Input>
+      <Label className="flex left-0 p-2">Blog Post Description :</Label>
+      <Input
         onChange={(e) => setDescription(e.target.value)}
         maxLength={100}
         required
         name="description"
-      ></input>
-      <label>Blog Post Content :</label>
-      <input
+      ></Input>
+      <Label className="flex left-0 p-2">Blog Post Content :</Label>
+      <Input
         onChange={(e) => setContent(e.target.value)}
         maxLength={1000}
         required
         name="content"
-      ></input>
-      <button type="submit">Submit</button>
+      ></Input>
+      <Button type="submit" className="mt-4">
+        Submit
+      </Button>
     </form>
   );
 }

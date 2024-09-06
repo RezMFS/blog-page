@@ -5,7 +5,7 @@ export const pageData = [
   },
   {
     name: "Create Blog",
-    path: "/create-blog",
+    path: "/createblog",
   },
   {
     name: "Profile",

@@ -2,6 +2,8 @@ import { verifyUser } from "../api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Button } from "@/component/ui/button";
+import { Input } from "@/component/ui/input";
 
 export function Login() {
   const [user, setUser] = useState({
@@ -19,32 +21,37 @@ export function Login() {
     e.preventDefault();
     let response = await verifyUser(user);
     if (response) {
-      navigate("/home");
       sessionStorage.setItem("User", response);
+      console.log(`Bearer ${response}`);
       axios.defaults.headers.common["Authorization"] = `Bearer ${response}`;
+      navigate("/home");
     } else {
       alert("Login failed");
     }
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
+    <form onSubmit={handleSubmit} className="flex flex-col">
+      <Input
         placeholder={"Email"}
         onChange={handleChange}
         name="email"
         required
-        maxLength={50}
+        maxLength={40}
+        className="mb-2"
       />
-      <input
+      <Input
         placeholder={"Password"}
         onChange={handleChange}
         name="password"
         type="password"
         required
-        maxLength={50}
+        maxLength={20}
+        className="mb-2"
       />
-      <button type="submit">Login</button>
+      <Button type="submit" className="mb-4">
+        Login
+      </Button>
     </form>
   );
 }

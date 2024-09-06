@@ -1,6 +1,6 @@
 import { getPosts } from "../api";
 import { useState, useEffect } from "react";
-import { BlogCard } from "../component/blog-card";
+import { BlogCard } from "../component/BlogCard";
 
 export function Home() {
   const [posts, setPosts] = useState([]);
@@ -8,17 +8,23 @@ export function Home() {
   useEffect(() => {
     async function loadAllPosts() {
       const data = await getPosts();
-      data.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+      data.sort(
+        (d1, d2) =>
+          new Date(d2.dateCreated).getTime() -
+          new Date(d1.dateCreated).getTime()
+      );
       setPosts(data);
     }
     loadAllPosts();
   }, []);
 
   return (
-    <div className="posts">
-      {posts.map((post) => {
-        return <BlogCard key={post._id} post={post} />;
-      })}
+    <div className="flex flex-col items-center w-full">
+      <div className="w-1/3 mt-4">
+        {posts.map((post) => {
+          return <BlogCard key={post._id} post={post} />;
+        })}
+      </div>
     </div>
   );
 }

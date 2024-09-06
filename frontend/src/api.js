@@ -17,7 +17,8 @@ export async function getPosts() {
 // get a single post from the database
 export async function getPost(id) {
   const response = await axios.get(`${URL}/posts/${id}`);
-  return response;
+  const post = response.data;
+  return post;
 }
 
 // create a new post in the database
